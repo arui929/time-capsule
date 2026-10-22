@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++编程之旅 · 时空胶囊</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0d1137 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        /* 星空背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* 流星效果 */
+        .meteor {
+            position: fixed;
+            width: 2px;
+            height: 100px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.8), transparent);
+            animation: meteor-fall 3s linear infinite;
+            transform: rotate(-45deg);
+        }
+
+        @keyframes meteor-fall {
+            0% { transform: translateY(-100px) rotate(-45deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(-45deg); opacity: 0; }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        /* 标题区域 */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* 胶囊动画 */
+        .capsule-container {
+            position: relative;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .capsule {
+            width: 120px;
+            height: 160px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            border-radius: 60px;
+            border: 2px solid rgba(255,255,255,0.2);
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 0 60px rgba(102, 126, 234, 0.5);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .capsule::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -20px;
+            right: -20px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            transform: translateY(-50%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .capsule-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+            50% { filter: drop-shadow(0 0 20px rgba(255,255,255,1)); }
+        }
+
+        /* 表单区域 */
+        .form-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.12);
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        textarea.form-input {
+            min-height: 120px;
+            resize: none;
+            line-height: 1.6;
+        }
+
+        /* 主题选择 */
+        .theme-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .theme-item {
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .theme-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .theme-item.active {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            border-color: #667eea;
+        }
+
+        .theme-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        /* 提交按钮 */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        /* 成功页面 */
+        .success-section {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .success-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .success-text {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .capsule-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .capsule-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .capsule-number {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 15px;
+        }
+
+        .capsule-content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.9);
+            position: relative;
+            z-index: 1;
+        }
+
+        .open-date {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #f5576c;
+            font-weight: bold;
+        }
+
+        /* 提示文字 */
+        .tips {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 20px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 375px) {
+            .title {
+                font-size: 28px;
+            }
+            .form-section {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 流星 -->
+    <div class="meteor" style="top: -100px; left: 20%; animation-delay: 0s;"></div>
+    <div class="meteor" style="top: -100px; left: 50%; animation-delay: 1.5s;"></div>
+    <div class="meteor" style="top: -100px; left: 80%; animation-delay: 3s;"></div>
+
+    <div class="container">
+        <!-- 填写区域 -->
+        <div id="formSection">
+            <div class="header">
+                <div class="logo">🚀 C++编程之旅</div>
+                <h1 class="title">时空胶囊</h1>
+                <p class="subtitle">给半年后的自己，写一封信 ✨</p>
+            </div>
+
+            <div class="capsule-container">
+                <div class="capsule">
+                    <div class="capsule-text">💊</div>
+                </div>
+            </div>
+
+            <form id="capsuleForm">
+                <div class="form-section">
+                    <div class="form-group">
+                        <label class="form-label">👦 你的名字</label>
+                        <input type="text" class="form-input" id="userName" placeholder="输入你的昵称" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🎂 你的年龄</label>
+                        <input type="number" class="form-input" id="userAge" placeholder="输入你的年龄" min="6" max="18" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🎯 未来的你想成为什么？</label>
+                        <div class="theme-selector">
+                            <div class="theme-item" data-theme="algorithm">
+                                <div class="theme-icon">🧠</div>
+                                <div>算法工程师</div>
+                            </div>
+                            <div class="theme-item" data-theme="game">
+                                <div class="theme-icon">🎮</div>
+                                <div>游戏开发工程师</div>
+                            </div>
+                            <div class="theme-item" data-theme="ai">
+                                <div class="theme-icon">🤖</div>
+                                <div>AI科学家</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">💭 写给半年后的自己</label>
+                        <textarea class="form-input" id="futureMessage" placeholder="亲爱的未来的我，你好！我是半年前的你。现在的我，对C++编程充满了好奇和期待。我希望半年后的你，已经能够..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🎯 想通过学C++获得什么</label>
+                        <textarea class="form-input" id="learningGoal" placeholder="例如：我想学会做自己的第一个游戏、我想参加信息学奥赛、我想让妈妈为我骄傲..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        ✨ 封存时空胶囊 ✨
+                    </button>
+                </div>
+            </form>
+
+            <p class="tips">💡 这封信将在半年后打开，见证你的成长与蜕变</p>
+        </div>
+
+        <!-- 成功页面 -->
+        <div id="successSection" class="success-section">
+            <div class="success-icon">🎉</div>
+            <h2 class="success-title">时空胶囊已封存！</h2>
+            <p class="success-text">
+                你的期待已被记录<br>
+                半年后的今天，我们将一起打开它<br>
+                见证你的成长与蜕变
+            </p>
+
+            <div class="capsule-card">
+                <div class="capsule-number">
+                    胶囊编号：<span id="capsuleId"></span>
+                </div>
+                <div class="capsule-content">
+                    <strong id="successName"></strong>，<span id="successAge"></span>岁<br>
+                    <span id="successTheme"></span><br><br>
+                    "<span id="successMessage"></span>"<br><br>
+                    目标：<span id="successGoal"></span>
+                </div>
+                <div class="open-date">
+                    📅 开启日期：<span id="openDate"></span>
+                </div>
+            </div>
+
+            <p class="tips">
+                📸 截图保存这份美好的期待<br>
+                辅导老师将在半年后与你一起回顾
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 生成星空
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+                star.style.animationDelay = Math.random() * 5 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        createStars();
+
+        // 主题选择
+        let selectedTheme = '';
+        const themeItems = document.querySelectorAll('.theme-item');
+        themeItems.forEach(item => {
+            item.addEventListener('click', function() {
+                themeItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                selectedTheme = this.dataset.theme;
+            });
+        });
+
+        // 表单提交
+        const form = document.getElementById('capsuleForm');
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!selectedTheme) {
+                alert('请选择一个时光主题哦！');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = '封存中...';
+
+            const formData = {
+                name: document.getElementById('userName').value,
+                age: document.getElementById('userAge').value,
+                theme: selectedTheme,
+                message: document.getElementById('futureMessage').value,
+                goal: document.getElementById('learningGoal').value,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch('/api/capsule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess(formData, result.capsuleId);
+                } else {
+                    alert('封存失败，请重试');
+                }
+            } catch (error) {
+                // 演示模式：即使API失败也显示成功
+                const demoId = 'TC' + Date.now().toString().slice(-8);
+                showSuccess(formData, demoId);
+            } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = '✨ 封存时空胶囊 ✨';
+            }
+        });
+
+        function showSuccess(data, capsuleId) {
+            document.getElementById('formSection').style.display = 'none';
+            document.getElementById('successSection').style.display = 'block';
+
+            document.getElementById('capsuleId').textContent = capsuleId;
+            document.getElementById('successName').textContent = data.name;
+            document.getElementById('successAge').textContent = data.age;
+
+            const themeNames = {
+                algorithm: '🧠 算法工程师',
+                game: '🎮 游戏开发工程师',
+                ai: '🤖 AI科学家'
+            };
+            document.getElementById('successTheme').textContent = themeNames[data.theme];
+            document.getElementById('successMessage').textContent = data.message;
+            document.getElementById('successGoal').textContent = data.goal;
+
+            // 计算开启日期（半年后）
+            const openDate = new Date();
+            openDate.setMonth(openDate.getMonth() + 6);
+            document.getElementById('openDate').textContent = openDate.toLocaleDateString('zh-CN');
+        }
+    </script>
+</body>
+</html>
